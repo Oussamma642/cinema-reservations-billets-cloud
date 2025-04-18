@@ -8,7 +8,7 @@ const JWT_EXPIRES_IN = "1d";
 
 exports.register = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, role } = req.body;
 
     // Check if user already exists
     const existing = await User.findOne({ email });
@@ -19,7 +19,12 @@ exports.register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Save user
-    const newUser = new User({ username, email, password: hashedPassword });
+    const newUser = new User({
+      username,
+      email,
+      password: hashedPassword,
+      role: role || "client", // Utilise le rôle fourni ou 'client' par défaut
+    });
     await newUser.save();
 
     res.status(201).json({ message: "User registered successfully" });
@@ -48,7 +53,12 @@ exports.login = async (req, res) => {
 
     res.json({
       token,
-      user: { id: user._id, username: user.username, email: user.email },
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
