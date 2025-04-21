@@ -1,9 +1,14 @@
 // controllers/authController.js
+
+require('dotenv').config();
+
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = "secret"; // You can move this to env later
+// const JWT_SECRET = "secret"; // You can move this to env later
+
+const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = "1d";
 
 exports.register = async (req, res) => {
