@@ -16,6 +16,6 @@ class Salle extends Model
 
     public function seances()
     {
-        return $this->hasMany(Seance::class);
+        return $this->hasOne(Seance::class);
     }
 }
