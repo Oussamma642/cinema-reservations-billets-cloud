@@ -3,6 +3,12 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\Api\FilmController;
+use App\Http\Middleware\VerifyJwtToken;
+use App\Http\Controllers\Api\SeanceController;
+use App\Http\Controllers\Api\SalleController;
+use App\Http\Controllers\Api\CategoryController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -14,6 +20,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('jwt.auth')->group(function () {
+    Route::apiResource('films', FilmController::class);
+    Route::apiResource('seances', SeanceController::class);
+    Route::apiResource('salles', SalleController::class);
+    Route::apiResource('categories', CategoryController::class);
 });

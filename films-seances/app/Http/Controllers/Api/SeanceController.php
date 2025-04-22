@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Seance;
 
 class SeanceController extends Controller
 {
@@ -12,7 +13,8 @@ class SeanceController extends Controller
      */
     public function index()
     {
-        //
+        $seances = Seance::all();   
+        return response()->json($seances);
     }
 
     /**

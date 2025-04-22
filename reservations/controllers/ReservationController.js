@@ -6,7 +6,11 @@ const ReservationController = {};
 // Function to create a new reservation
 ReservationController.createReservation = async (req, res) => {
     try {
-        const { userId, seanceId, numberOfPlaces } = req.body;
+        const { userId, seanceId, numberOfPlaces, role } = req.body;
+
+        // if(role != 'client'){
+        //     return res.status(400).json({ message: 'Only the client who can make reservation' });
+        // }
 
         // Validate input
         if (!userId || !seanceId || !numberOfPlaces) {

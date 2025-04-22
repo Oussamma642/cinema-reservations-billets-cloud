@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Salle;
 
 class SalleController extends Controller
 {
@@ -12,7 +13,8 @@ class SalleController extends Controller
      */
     public function index()
     {
-        //
+        $sales = Salle::all();
+        return response()->json($sales);
     }
 
     /**
