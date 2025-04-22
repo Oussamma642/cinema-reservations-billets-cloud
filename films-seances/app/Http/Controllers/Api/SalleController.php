@@ -31,7 +31,11 @@ class SalleController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $salle = Salle::find($id);
+        if (!$salle) {
+            return response()->json(['message' => 'Salle not found'], 404);
+        }
+        return response()->json($salle);
     }
 
     /**

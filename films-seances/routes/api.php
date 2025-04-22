@@ -30,6 +30,8 @@ Route::middleware('jwt.auth')->group(function () {
     // -- Seances
     Route::apiResource('seances', SeanceController::class);
     // Api to get the availability of a seance
+    // Route::get('seances/{seance}/availability', [SeanceController::class, 'availability']);
     Route::get('seances/{seance}/availability', [SeanceController::class, 'availability']);
+
 
 });
