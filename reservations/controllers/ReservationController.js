@@ -8,9 +8,6 @@ ReservationController.createReservation = async (req, res) => {
     try {
         const { userId, seanceId, numberOfPlaces, role } = req.body;
 
-        // if(role != 'client'){
-        //     return res.status(400).json({ message: 'Only the client who can make reservation' });
-        // }
 
         // Validate input
         if (!userId || !seanceId || !numberOfPlaces) {
@@ -36,12 +33,13 @@ ReservationController.createReservation = async (req, res) => {
             seanceId,
             numberOfPlaces,
             totalPrice,
+            status:'accepted'
         });
 
         await reservation.save();
 
         // Update the number of reserved places in the séance
-        await axios.patch(`http://localhost:8000/seances/${seanceId}/update-places`, {
+        await axios.patch(`http://localhost:8000/seances/${seanceId}`, {
             reservedPlaces: numberOfPlaces,
         });
 

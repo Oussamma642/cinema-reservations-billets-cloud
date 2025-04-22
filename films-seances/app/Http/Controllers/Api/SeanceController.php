@@ -1,10 +1,9 @@
 <?php
-
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Seance;
+use Illuminate\Http\Request;
 
 class SeanceController extends Controller
 {
@@ -13,7 +12,7 @@ class SeanceController extends Controller
      */
     public function index()
     {
-        $seances = Seance::all();   
+        $seances = Seance::all();
         return response()->json($seances);
     }
 
@@ -30,15 +29,34 @@ class SeanceController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $seance = Seance::find($id);
+        return response()->json($seance);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Seance $seance)
     {
-        //
+        // $request->validate([
+        //     'reservedPlaces' => 'sometimes|integer|min:1',
+        //     // other validation rules
+        // ]);
+
+        if ($request->has('reservedPlaces')) {
+            // Add the new places to the existing reserved places
+            $seance->reserved_places += $request->reservedPlaces;
+
+            // Optionally check if the seance is now full
+            $salle = $seance->salle;
+            if ($seance->reserved_places >= $salle->capacity) {
+                $seance->status = 'full';
+            }
+        }
+
+        // Handle other updates if needed
+        $seance->save();
+        return response()->json($seance);
     }
 
     /**
@@ -48,4 +66,33 @@ class SeanceController extends Controller
     {
         //
     }
+
+    public function availability($seanceId)
+    {
+        // جلب السيانس مع الصالة
+        $seance = Seance::with('salle')->find($seanceId);
+
+        if (! $seance) {
+            return response()->json([
+                'message' => 'Séance non trouvée',
+            ], 404);
+        }
+
+        // سعة الصالة
+        $capacity = $seance->salle->capacity;
+
+        // الأماكن المحجوزة
+        $reserved = $seance->reserved_places;
+
+        // الأماكن المتبقية
+        $available = $capacity - $reserved;
+        if ($available < 0) {
+            $available = 0;
+        }
+
+        return response()->json([
+            'availablePlaces' => $available,
+        ]);
+    }
+
 }

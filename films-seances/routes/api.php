@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\SeanceController;
 use App\Http\Controllers\Api\SalleController;
 use App\Http\Controllers\Api\CategoryController;
 
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -22,7 +23,13 @@ use App\Http\Controllers\Api\CategoryController;
 
 Route::middleware('jwt.auth')->group(function () {
     Route::apiResource('films', FilmController::class);
-    Route::apiResource('seances', SeanceController::class);
     Route::apiResource('salles', SalleController::class);
     Route::apiResource('categories', CategoryController::class);
+
+
+    // -- Seances
+    Route::apiResource('seances', SeanceController::class);
+    // Api to get the availability of a seance
+    Route::get('seances/{seance}/availability', [SeanceController::class, 'availability']);
+
 });
