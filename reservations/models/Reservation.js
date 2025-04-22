@@ -1,3 +1,4 @@
+// models/Reservation.js
 const mongoose = require("mongoose");
 
 const reservationSchema = new mongoose.Schema({
@@ -28,8 +29,10 @@ const reservationSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model(
-  "Reservation",
-  reservationSchema,
-  "reservations"
+// ⚠️ Prevent the same user from reserving the same seance twice
+reservationSchema.index(
+  { userId: 1, seanceId: 1 },
+  { unique: true, name: "unique_user_seance" }
 );
+
+module.exports = mongoose.model("Reservation", reservationSchema, "reservations");

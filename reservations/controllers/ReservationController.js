@@ -67,16 +67,15 @@ ReservationController.createReservation = async (req, res) => {
         },
       }
     );
-    // await authApi.put(`/seances/${seanceId}`, {
-    //     reservedPlaces: numberOfPlaces,
-    // });
-
     res
       .status(201)
       .json({ message: "Reservation created successfully", reservation });
   } catch (error) {
     console.error("❌ ERROR:", error.message);
 
+    if (error.code === 11000) {
+        return res.status(400).json({ message: 'You already have a reservation for this séance' });
+      }
     if (error.response) {
       console.error("🧾 Response Data:", error.response.data);
       console.error("📡 Response Status:", error.response.status);
@@ -87,10 +86,7 @@ ReservationController.createReservation = async (req, res) => {
       .status(500)
       .json({ message: "An error occurred while creating the reservation" });
   }
-  //  catch (error) {
-  //     console.error(error);
-  //     res.status(500).json({ message: 'An error occurred while creating the reservation' });
-  // }
+
 };
 
 // Function to get all reservations with populated seanceId and userId
