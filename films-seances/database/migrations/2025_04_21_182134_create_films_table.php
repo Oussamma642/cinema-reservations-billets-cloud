@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->integer('duration'); // en minutes
             $table->date('release_date')->nullable();
+            $table->string('poster_url')->nullable();
             $table->timestamps();
         });
     }

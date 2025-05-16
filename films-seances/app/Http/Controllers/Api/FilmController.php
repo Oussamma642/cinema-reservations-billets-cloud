@@ -13,8 +13,24 @@ class FilmController extends Controller
      */
     public function index()
     {
-        $films = Film::all();
-        return response()->json($films);
+        $films = Film::with('categories')->get();
+        
+        // Transform the data to match frontend expectations
+        $transformedFilms = $films->map(function ($film) {
+            return [
+                'id' => $film->id,
+                'title' => $film->title,
+                'description' => $film->description,
+                'duration' => $film->duration,
+                'release_date' => $film->release_date,
+                'poster_url' => $film->poster_url ?? 'https://via.placeholder.com/300x450?text=No+Poster', 
+                'status' => 'active', // Default to active
+                'genre' => $film->categories->isNotEmpty() ? $film->categories->first()->name : 'Unknown',
+                'categories' => $film->categories->pluck('name')
+            ];
+        });
+        
+        return response()->json($transformedFilms);
     }
 
     /**
@@ -22,7 +38,21 @@ class FilmController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'duration' => 'required|integer|min:1',
+            'release_date' => 'nullable|date',
+            'poster_url' => 'nullable|string',
+        ]);
+        
+        $film = Film::create($validated);
+        
+        if ($request->has('categories')) {
+            $film->categories()->attach($request->categories);
+        }
+        
+        return response()->json($film, 201);
     }
 
     /**
@@ -30,7 +60,21 @@ class FilmController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $film = Film::with('categories')->findOrFail($id);
+        
+        $transformedFilm = [
+            'id' => $film->id,
+            'title' => $film->title,
+            'description' => $film->description,
+            'duration' => $film->duration,
+            'release_date' => $film->release_date,
+            'poster_url' => $film->poster_url ?? 'https://via.placeholder.com/300x450?text=No+Poster',
+            'status' => 'active', // Default to active
+            'genre' => $film->categories->isNotEmpty() ? $film->categories->first()->name : 'Unknown',
+            'categories' => $film->categories->pluck('name')
+        ];
+        
+        return response()->json($transformedFilm);
     }
 
     /**
@@ -38,7 +82,23 @@ class FilmController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $film = Film::findOrFail($id);
+        
+        $validated = $request->validate([
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'nullable|string',
+            'duration' => 'sometimes|required|integer|min:1',
+            'release_date' => 'nullable|date',
+            'poster_url' => 'nullable|string',
+        ]);
+        
+        $film->update($validated);
+        
+        if ($request->has('categories')) {
+            $film->categories()->sync($request->categories);
+        }
+        
+        return response()->json($film);
     }
 
     /**
@@ -46,6 +106,10 @@ class FilmController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $film = Film::findOrFail($id);
+        $film->categories()->detach();
+        $film->delete();
+        
+        return response()->noContent();
     }
 }

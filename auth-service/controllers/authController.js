@@ -32,7 +32,21 @@ exports.register = async (req, res) => {
     });
     await newUser.save();
 
-    res.status(201).json({ message: "User registered successfully" });
+    // Create JWT token for automatic login after registration
+    const token = jwt.sign({ id: newUser._id, email: newUser.email }, JWT_SECRET, {
+      expiresIn: JWT_EXPIRES_IN,
+    });
+
+    res.status(201).json({ 
+      message: "User registered successfully",
+      token,
+      user: {
+        id: newUser._id,
+        username: newUser.username,
+        email: newUser.email,
+        role: newUser.role,
+      }
+    });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
@@ -77,5 +91,31 @@ exports.getAllUsers = async (req, res) => {
     res.json(users);
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+exports.verifyToken = async (req, res) => {
+  try {
+    // The user is already verified by the middleware
+    const userId = req.user.id;
+    
+    // Get user details without password
+    const user = await User.findById(userId).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ valid: false, message: "User not found" });
+    }
+    
+    return res.json({ 
+      valid: true, 
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      }
+    });
+  } catch (err) {
+    return res.status(500).json({ valid: false, message: "Server error", error: err.message });
   }
 };

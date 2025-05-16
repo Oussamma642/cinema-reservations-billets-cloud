@@ -14,6 +14,7 @@ class Film extends Model
         'description',
         'duration',
         'release_date',
+        'poster_url',
     ];
 
     public function categories()

@@ -1,17 +1,21 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
-app.use(express.json());
+
 app.use(cors());
+app.use(express.json());
 
-mongoose
-  .connect("mongodb://localhost:27017/oc-reservation-service")
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error("MongoDB error:", err));
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
-const reservationRoute = require("./routes/reservations");
-app.use("/api", reservationRoute);
+// Routes
+app.use('/api/reservations', require('./routes/reservations'));
 
-app.listen(5002, () => console.log("Enrollment Service running on port 5002"));
+const PORT = process.env.PORT || 5001;
+app.listen(PORT, () => {
+  console.log(`Reservations Service running on port ${PORT}`);
+});

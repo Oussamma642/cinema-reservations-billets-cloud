@@ -10,9 +10,15 @@ class SeanceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        // If film_id is provided, filter seances by film_id
+        if ($request->has('film_id')) {
+            $seances = Seance::where('film_id', $request->film_id)->get();
+        } else {
         $seances = Seance::all();
+        }
+        
         return response()->json($seances);
     }
 

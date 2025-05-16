@@ -22,7 +22,14 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:categories',
+            'description' => 'nullable|string',
+        ]);
+        
+        $category = Category::create($validated);
+        
+        return response()->json($category, 201);
     }
 
     /**
@@ -30,7 +37,8 @@ class CategoryController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $category = Category::with('films')->findOrFail($id);
+        return response()->json($category);
     }
 
     /**
@@ -38,7 +46,16 @@ class CategoryController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $category = Category::findOrFail($id);
+        
+        $validated = $request->validate([
+            'name' => 'sometimes|required|string|max:255|unique:categories,name,' . $id,
+            'description' => 'nullable|string',
+        ]);
+        
+        $category->update($validated);
+        
+        return response()->json($category);
     }
 
     /**
@@ -46,6 +63,11 @@ class CategoryController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $category = Category::findOrFail($id);
+        // Detach any relationships to avoid foreign key constraints
+        $category->films()->detach();
+        $category->delete();
+        
+        return response()->noContent();
     }
 }

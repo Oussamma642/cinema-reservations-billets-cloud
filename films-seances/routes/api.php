@@ -21,17 +21,34 @@ use App\Http\Controllers\Api\CategoryController;
 |
 */
 
+// Public routes that don't require authentication
+Route::get('films', [FilmController::class, 'index']);
+Route::get('films/{id}', [FilmController::class, 'show']);
+Route::get('categories', [CategoryController::class, 'index']);
+
+// Public routes for seances
+Route::get('seances', [SeanceController::class, 'index']);
+Route::get('seances/{id}', [SeanceController::class, 'show']);
+Route::get('seances/{seance}/availability', [SeanceController::class, 'availability']);
+
+// Public routes for salles
+Route::get('salles', [SalleController::class, 'index']);
+Route::get('salles/{id}', [SalleController::class, 'show']);
+
+// Protected routes that require JWT authentication
 Route::middleware('jwt.auth')->group(function () {
-    Route::apiResource('films', FilmController::class);
-    Route::apiResource('salles', SalleController::class);
-    Route::apiResource('categories', CategoryController::class);
-
-
-    // -- Seances
-    Route::apiResource('seances', SeanceController::class);
-    // Api to get the availability of a seance
-    // Route::get('seances/{seance}/availability', [SeanceController::class, 'availability']);
-    Route::get('seances/{seance}/availability', [SeanceController::class, 'availability']);
-
-
+    // Full CRUD for films except the public GET routes
+    Route::post('films', [FilmController::class, 'store']);
+    Route::put('films/{id}', [FilmController::class, 'update']);
+    Route::delete('films/{id}', [FilmController::class, 'destroy']);
+    
+    // Protected CRUD for seances (except the public GET routes)
+    Route::post('seances', [SeanceController::class, 'store']);
+    Route::put('seances/{id}', [SeanceController::class, 'update']);
+    Route::delete('seances/{id}', [SeanceController::class, 'destroy']);
+    
+    // Protected CRUD for salles (except the public GET routes)
+    Route::post('salles', [SalleController::class, 'store']);
+    Route::put('salles/{id}', [SalleController::class, 'update']);
+    Route::delete('salles/{id}', [SalleController::class, 'destroy']);
 });

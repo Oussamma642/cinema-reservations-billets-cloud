@@ -9,17 +9,17 @@
 //   </StrictMode>,
 // )
 
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import React from 'react'
+import ReactDOM from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
-import { ContexteProvider } from './contexts/ContextProvider.jsx';
+import router from './router'
 import './index.css'
-import router from './router.jsx';
+import { LanguageProvider } from './context/LanguageContext'
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <ContexteProvider >
-      <RouterProvider router={router} />    
-    </ContexteProvider>
-  </StrictMode>,
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <LanguageProvider>
+      <RouterProvider router={router} />
+    </LanguageProvider>
+  </React.StrictMode>,
 )
