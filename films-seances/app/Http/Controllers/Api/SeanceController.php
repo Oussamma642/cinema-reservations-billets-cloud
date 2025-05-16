@@ -49,7 +49,7 @@ class SeanceController extends Controller
 
             // Optionally check if the seance is now full
             $salle = $seance->salle;
-            if ($seance->reserved_places >= $salle->capacity) {
+            if ($seance->reserved_places == $salle->capacity) {
                 $seance->status = 'full';
             }
         }
@@ -62,10 +62,13 @@ class SeanceController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
-    }
+  
+     public function destroy(string $id)
+     {
+        $seance = Seance::findOrFail($id);
+        $seance->delete();
+        return response()->json(null, 204);
+     }
 
     public function availability($seanceId)
     {

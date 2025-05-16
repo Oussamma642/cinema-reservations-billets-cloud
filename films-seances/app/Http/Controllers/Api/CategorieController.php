@@ -2,18 +2,19 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Salle;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
-class SalleController extends Controller
+class CategorieController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $sales = Salle::all();
-        return response()->json($sales);
+        // Implementation of index method
+        $categories = Category::all();
+        return response()->json($categories);
     }
 
     /**
@@ -22,12 +23,11 @@ class SalleController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'     => 'required|string|max:50',
-            'capacity' => 'required|integer|min:1',
+            'name' => 'required|string|unique:categories,name',
         ]);
 
-        $salle = Salle::create($validated);
-        return response()->json($salle, 201);
+        $categorie = Categorie::create($validated);
+        return response()->json($categorie, 201);
     }
 
     /**
@@ -35,8 +35,8 @@ class SalleController extends Controller
      */
     public function show(string $id)
     {
-        $salle = Salle::findOrFail($id);
-        return response()->json($salle);
+        $categorie = Categorie::findOrFail($id);
+        return response()->json($categorie);
     }
 
     /**
@@ -44,15 +44,14 @@ class SalleController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $salle = Salle::findOrFail($id);
+        $categorie = Categorie::findOrFail($id);
 
         $validated = $request->validate([
-            'name'     => 'sometimes|required|string|max:50',
-            'capacity' => 'sometimes|required|integer|min:1',
+            'name' => 'sometimes|required|string|unique:categories,name,' . $id,
         ]);
 
-        $salle->update($validated);
-        return response()->json($salle);
+        $categorie->update($validated);
+        return response()->json($categorie);
     }
 
     /**
@@ -60,8 +59,8 @@ class SalleController extends Controller
      */
     public function destroy(string $id)
     {
-        $salle = Salle::findOrFail($id);
-        $salle->delete();
+        $categorie = Categorie::findOrFail($id);
+        $categorie->delete();
         return response()->json(null, 204);
     }
 }

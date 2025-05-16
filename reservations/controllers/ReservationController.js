@@ -32,7 +32,7 @@ ReservationController.createReservation = async (req, res) => {
     if (numberOfPlaces > availablePlaces) {
       return res
         .status(400)
-        .json({ message: availablePlaces + " places available only" });
+        .json({ message: availablePlaces + " places available only " });
     }
 
     // Calculate total price (assuming price is fetched from séance details)

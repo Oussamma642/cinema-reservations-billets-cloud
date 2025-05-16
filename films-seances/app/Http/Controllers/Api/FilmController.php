@@ -1,10 +1,9 @@
 <?php
-
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Film;
+use Illuminate\Http\Request;
 
 class FilmController extends Controller
 {
@@ -22,7 +21,15 @@ class FilmController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'title'        => 'required|string|max:255',
+            'description'  => 'nullable|string',
+            'duration'     => 'required|integer|min:1',
+            'release_date' => 'nullable|date',
+        ]);
+
+        $film = Film::create($validated);
+        return response()->json($film, 201);
     }
 
     /**
@@ -30,7 +37,8 @@ class FilmController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $film = Film::findOrFail($id);
+        return response()->json($film);
     }
 
     /**
@@ -38,7 +46,17 @@ class FilmController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $film = Film::findOrFail($id);
+
+        $validated = $request->validate([
+            'title'        => 'sometimes|required|string|max:255',
+            'description'  => 'nullable|string',
+            'duration'     => 'sometimes|required|integer|min:1',
+            'release_date' => 'nullable|date',
+        ]);
+
+        $film->update($validated);
+        return response()->json($film);
     }
 
     /**
@@ -46,6 +64,8 @@ class FilmController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $film = Film::findOrFail($id);
+        $film->delete();
+        return response()->json(null, 204);
     }
 }

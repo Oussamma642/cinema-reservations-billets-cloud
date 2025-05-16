@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\FilmController;
 use App\Http\Middleware\VerifyJwtToken;
 use App\Http\Controllers\Api\SeanceController;
 use App\Http\Controllers\Api\SalleController;
-use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CategorieController;
 
 
 /*
@@ -24,7 +24,7 @@ use App\Http\Controllers\Api\CategoryController;
 Route::middleware('jwt.auth')->group(function () {
     Route::apiResource('films', FilmController::class);
     Route::apiResource('salles', SalleController::class);
-    Route::apiResource('categories', CategoryController::class);
+    Route::apiResource('categories', CategorieController::class);
 
 
     // -- Seances
