@@ -2,8 +2,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Film;
 use App\Models\Seance;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SeanceController extends Controller
 {
@@ -21,7 +24,48 @@ class SeanceController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'film_id'      => 'required|exists:films,id',
+            'salle_id'     => 'required|exists:salles,id',
+            'scheduled_at' => 'required|date',
+            'price'        => 'required|numeric|min:0|max:999999.99',
+            'status'       => 'sometimes|in:active,cancelled,full',
+        ]);
+
+        // Vérifier si la salle est disponible à cette date
+        $existingSeance = Seance::where('salle_id', $validated['salle_id'])
+            ->where('scheduled_at', $validated['scheduled_at'])
+            ->first();
+
+        if ($existingSeance) {
+            return response()->json([
+                'message' => 'La salle est déjà réservée pour cette date et heure',
+            ], 422);
+        }
+
+        // Vérifier si le film existe
+        $film = Film::findOrFail($validated['film_id']);
+
+        // Calculer l'heure de fin de la séance
+        $endTime = Carbon::parse($validated['scheduled_at'])->addMinutes($film->duration);
+
+        // Vérifier les chevauchements avec d'autres séances
+        $overlappingSeance = Seance::where('salle_id', $validated['salle_id'])
+            ->where(function ($query) use ($validated, $endTime) {
+                $query->whereBetween('scheduled_at', [$validated['scheduled_at'], $endTime])
+                    ->orWhereBetween(DB::raw('DATE_ADD(scheduled_at, INTERVAL (SELECT duration FROM films WHERE id = film_id) MINUTE)'),
+                        [$validated['scheduled_at'], $endTime]);
+            })
+            ->first();
+
+        if ($overlappingSeance) {
+            return response()->json([
+                'message' => 'Il y a un chevauchement avec une autre séance dans cette salle',
+            ], 422);
+        }
+
+        $seance = Seance::create($validated);
+        return response()->json($seance, 201);
     }
 
     /**
@@ -62,13 +106,13 @@ class SeanceController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-  
-     public function destroy(string $id)
-     {
+
+    public function destroy(string $id)
+    {
         $seance = Seance::findOrFail($id);
         $seance->delete();
         return response()->json(null, 204);
-     }
+    }
 
     public function availability($seanceId)
     {
